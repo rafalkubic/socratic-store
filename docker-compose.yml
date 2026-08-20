@@ -1,0 +1,22 @@
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: socratic-store-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: socratic_store
+      MYSQL_USER: socratic_store
+      MYSQL_PASSWORD: change-me
+      MYSQL_ROOT_PASSWORD: local-root-change-me
+    ports:
+      - "3306:3306"
+    volumes:
+      - socratic_store_mysql:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-plocal-root-change-me"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  socratic_store_mysql:

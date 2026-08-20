@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}{{ t('cart') }} · {{ shop_name }}{% endblock %}
+{% block content %}
+<section class="section-block narrow top-space">
+    <div class="section-heading"><h1>{{ t('cart') }}</h1></div>
+    {% if lines %}
+    <div class="cart-list">
+        {% for line in lines %}
+        <div class="cart-row">
+            <img src="{{ url_for('static', filename=line.product.image_path) }}" alt="{{ line.product.name_for(lang) }}">
+            <div class="cart-info">
+                <strong>{{ line.product.name_for(lang) }}</strong>
+                <span>{{ t('quantity') }}: {{ line.quantity }}</span>
+            </div>
+            <strong>{{ line.line_total|money }}</strong>
+            <form action="{{ url_for('shop.cart_remove', product_id=line.product.id) }}" method="post">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="link-button danger" type="submit">{{ t('remove') }}</button>
+            </form>
+        </div>
+        {% endfor %}
+    </div>
+    <div class="cart-summary">
+        <span>{{ t('total') }}</span><strong>{{ total|money }}</strong>
+    </div>
+    <div class="actions-right">
+        <a class="button" href="{{ url_for('shop.home') }}">{{ t('continue_shopping') }}</a>
+        <a class="button primary" href="{{ url_for('shop.checkout') }}">{{ t('checkout') }}</a>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <img src="{{ url_for('static', filename='images/decor/monad.png') }}" alt="">
+        <p>{{ t('empty_cart') }}</p>
+        <a class="button primary" href="{{ url_for('shop.home') }}">{{ t('browse') }}</a>
+    </div>
+    {% endif %}
+</section>
+{% endblock %}

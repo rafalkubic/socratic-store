@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}{{ t('checkout') }} · {{ shop_name }}{% endblock %}
+{% block content %}
+<section class="checkout-layout top-space">
+    <div class="panel">
+        <p class="eyebrow">CHECKOUT</p>
+        <h1>{{ t('payment') }}</h1>
+        <form method="post" class="stack-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <label>{{ t('email') }}<input type="email" name="email" value="{{ current_user.email }}" required></label>
+            <div class="payment-choice selected">
+                <span class="payment-icon">P24</span>
+                <div>
+                    <strong>{{ t('payment_p24') }}</strong>
+                    <small>Bank transfer / BLIK via Przelewy24</small>
+                </div>
+            </div>
+            <button class="button primary full" type="submit">{{ t('pay') }} · {{ total|money }}</button>
+        </form>
+    </div>
+    <aside class="panel order-preview">
+        <h2>{{ t('order') }}</h2>
+        {% for line in lines %}
+            <div class="preview-row"><span>{{ line.product.name_for(lang) }} × {{ line.quantity }}</span><strong>{{ line.line_total|money }}</strong></div>
+        {% endfor %}
+        <div class="preview-row total"><span>{{ t('total') }}</span><strong>{{ total|money }}</strong></div>
+    </aside>
+</section>
+{% endblock %}

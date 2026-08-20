@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}{{ t('order') }} {{ order.public_id[:8] }} · {{ shop_name }}{% endblock %}
+{% block content %}
+<section class="section-block narrow top-space">
+    <div class="order-card">
+        <p class="eyebrow">ORDER / {{ order.public_id[:8] }}</p>
+        <h1>{{ t('order') }}</h1>
+        <div class="status-badge {{ order.status }}">{{ t(order.status) if order.status in ['payment_pending','paid','payment_failed'] else order.status }}</div>
+        <div class="order-items">
+            {% for item in order.items %}
+                <div class="preview-row"><span>{{ item.name }} × {{ item.quantity }}</span><strong>{{ item.line_total|money }}</strong></div>
+            {% endfor %}
+            <div class="preview-row total"><span>{{ t('total') }}</span><strong>{{ order.total_amount|money }}</strong></div>
+        </div>
+        {% if order.status != 'paid' %}
+            {% if p24_enabled %}
+                <a class="button primary" href="{{ url_for('payments.start_payment', order_public_id=order.public_id) }}">{{ t('pay') }} — P24</a>
+            {% else %}
+                <p class="notice">{{ t('config_payment') }}</p>
+            {% endif %}
+            {% if demo_payment_mode %}
+            <form action="{{ url_for('payments.demo_payment', order_public_id=order.public_id) }}" method="post" class="demo-form">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="button" type="submit">{{ t('demo_payment') }}</button>
+                <small>{{ t('demo_notice') }}</small>
+            </form>
+            {% endif %}
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

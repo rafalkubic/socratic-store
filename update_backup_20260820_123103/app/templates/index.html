@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}{{ shop_name }}{% endblock %}
+{% block content %}
+<section class="hero">
+    <div class="hero-geometry" aria-hidden="true"></div>
+    <div class="hero-copy">
+        <p class="eyebrow">SOCRATIC AI / STORE</p>
+        <h1>{{ t('hero_title') }}</h1>
+        <p>{{ t('hero_subtitle') }}</p>
+        <a class="button primary" href="#collection">{{ t('browse') }}</a>
+    </div>
+    <div class="hero-emblem">
+        <img src="{{ url_for('static', filename='images/decor/flower-of-life.png') }}" alt="Sacred geometry motif">
+    </div>
+</section>
+
+<section id="collection" class="section-block">
+    <div class="section-heading">
+        <p class="eyebrow">COLLECTION</p>
+        <h2>{{ t('shop') }}</h2>
+    </div>
+    <div class="product-grid">
+        {% for product in products %}
+        <article class="product-card">
+            <a href="{{ url_for('shop.product', slug=product.slug) }}" class="product-image-wrap">
+                <img src="{{ url_for('static', filename=product.image_path) }}" alt="{{ product.name_for(lang) }}" class="product-image">
+            </a>
+            <div class="product-meta">
+                <span class="category-label">{{ product.category.name_for(lang) }}</span>
+                <h3><a href="{{ url_for('shop.product', slug=product.slug) }}">{{ product.name_for(lang) }}</a></h3>
+                <p>{{ product.description_for(lang) }}</p>
+                <div class="card-footer">
+                    <strong>{{ product.price_pln|money }}</strong>
+                    <form action="{{ url_for('shop.cart_add', product_id=product.id) }}" method="post">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <input type="hidden" name="quantity" value="1">
+                        <button class="button small" type="submit">{{ t('add_to_cart') }}</button>
+                    </form>
+                </div>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

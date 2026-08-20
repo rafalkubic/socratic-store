@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}{{ product.name_for(lang) }} · {{ shop_name }}{% endblock %}
+{% block content %}
+<section class="product-detail top-space">
+    <div class="product-detail-image">
+        <img src="{{ url_for('static', filename=product.image_path) }}" alt="{{ product.name_for(lang) }}">
+    </div>
+    <div class="product-detail-copy">
+        <p class="eyebrow">{{ product.category.name_for(lang) }}</p>
+        <h1>{{ product.name_for(lang) }}</h1>
+        <p class="lead">{{ product.description_for(lang) }}</p>
+        <div class="detail-line"><span>{{ t('price') }}</span><strong>{{ product.price_pln|money }}</strong></div>
+        <div class="detail-line"><span>{{ t('stock') }}</span><strong>{{ t('in_stock') }} · {{ product.stock_qty }}</strong></div>
+        <form action="{{ url_for('shop.cart_add', product_id=product.id) }}" method="post" class="buy-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <label>{{ t('quantity') }}<input name="quantity" type="number" min="1" max="{{ product.stock_qty }}" value="1"></label>
+            <button class="button primary" type="submit">{{ t('add_to_cart') }}</button>
+        </form>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}{{ category.name_for(lang) }} · {{ shop_name }}{% endblock %}
+{% block content %}
+<section class="section-block top-space">
+    <div class="section-heading">
+        <p class="eyebrow">CATEGORY</p>
+        <h1>{{ category.name_for(lang) }}</h1>
+    </div>
+    <div class="product-grid">
+        {% for product in products %}
+        <article class="product-card">
+            <a href="{{ url_for('shop.product', slug=product.slug) }}" class="product-image-wrap">
+                <img src="{{ url_for('static', filename=product.image_path) }}" alt="{{ product.name_for(lang) }}" class="product-image">
+            </a>
+            <div class="product-meta">
+                <h3><a href="{{ url_for('shop.product', slug=product.slug) }}">{{ product.name_for(lang) }}</a></h3>
+                <p>{{ product.description_for(lang) }}</p>
+                <div class="card-footer">
+                    <strong>{{ product.price_pln|money }}</strong>
+                    <form action="{{ url_for('shop.cart_add', product_id=product.id) }}" method="post">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <input type="hidden" name="quantity" value="1">
+                        <button class="button small" type="submit">{{ t('add_to_cart') }}</button>
+                    </form>
+                </div>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}
