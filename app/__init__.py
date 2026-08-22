@@ -1,16 +1,25 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 from flask import Flask, g, session
 from dotenv import load_dotenv
 
-from .config import Config
 from .extensions import csrf, db, oauth
 from .models import Category, User
 from .translations import translate
 
 
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+
+
 def create_app(test_config: dict | None = None) -> Flask:
-    load_dotenv()
+    # Config values are evaluated when Config is imported. Load the
+    # project-local .env first, using an explicit path, so shared identity and
+    # other Store settings do not depend on the process working directory.
+    load_dotenv(PROJECT_ROOT / ".env")
+    from .config import Config
+
     app = Flask(__name__)
     app.config.from_object(Config)
     if test_config:
@@ -42,10 +51,13 @@ def create_app(test_config: dict | None = None) -> Flask:
     from .auth import auth_bp
     from .payments import payments_bp
     from .shop import shop_bp
+    from .shared_identity import shared_identity_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(shop_bp)
     app.register_blueprint(payments_bp)
+    csrf.exempt(shared_identity_bp)
+    app.register_blueprint(shared_identity_bp)
 
     @app.before_request
     def load_user_and_language():
@@ -63,6 +75,7 @@ def create_app(test_config: dict | None = None) -> Flask:
         categories = Category.query.order_by(Category.sort_order, Category.id).all()
         return {
             "current_user": g.get("user"),
+            "current_profile": (g.get("user").dialogue_profile if g.get("user") else None),
             "lang": g.get("lang", "pl"),
             "t": lambda key: translate(g.get("lang", "pl"), key),
             "nav_categories": categories,

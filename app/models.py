@@ -24,6 +24,17 @@ class User(db.Model):
         "OAuthAccount", back_populates="user", cascade="all, delete-orphan"
     )
     orders = db.relationship("Order", back_populates="user")
+    dialogue_profile = db.relationship(
+        "UserDialogueProfile",
+        back_populates="user",
+        uselist=False,
+        cascade="all, delete-orphan",
+    )
+    profile_observations = db.relationship(
+        "UserProfileObservation",
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
 
     def set_password(self, password: str) -> None:
         self.password_hash = generate_password_hash(password)
@@ -45,6 +56,63 @@ class OAuthAccount(db.Model):
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
     user = db.relationship("User", back_populates="oauth_accounts")
+
+
+class UserDialogueProfile(db.Model):
+    """Persisted dialogue-orientation weights; not a diagnosis or belief record."""
+
+    __tablename__ = "user_dialogue_profiles"
+
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey("users.id", ondelete="CASCADE"),
+        primary_key=True,
+    )
+    hylik_weight = db.Column(db.Numeric(8, 6), nullable=False, default=Decimal("0.333333"))
+    psychik_weight = db.Column(db.Numeric(8, 6), nullable=False, default=Decimal("0.333333"))
+    pneumatyk_weight = db.Column(db.Numeric(8, 6), nullable=False, default=Decimal("0.333334"))
+    dominant_profile = db.Column(db.String(16), nullable=False, default="neutral")
+    confidence = db.Column(db.Numeric(8, 6), nullable=False, default=Decimal("0.000000"))
+    sample_count = db.Column(db.Integer, nullable=False, default=0)
+    profiling_enabled = db.Column(db.Boolean, nullable=False, default=True)
+    last_conversation_id = db.Column(db.String(128), nullable=True)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    updated_at = db.Column(
+        db.DateTime,
+        nullable=False,
+        default=datetime.utcnow,
+        onupdate=datetime.utcnow,
+    )
+
+    user = db.relationship("User", back_populates="dialogue_profile")
+
+
+class UserProfileObservation(db.Model):
+    """Coarse numeric evidence only. Raw prompts/messages are intentionally absent."""
+
+    __tablename__ = "user_profile_observations"
+
+    id = db.Column(
+        db.BigInteger().with_variant(db.Integer, "sqlite"),
+        primary_key=True,
+        autoincrement=True,
+    )
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    conversation_id = db.Column(db.String(128), nullable=True, index=True)
+    sample_number = db.Column(db.Integer, nullable=False)
+    hylik_evidence = db.Column(db.Numeric(8, 6), nullable=False)
+    psychik_evidence = db.Column(db.Numeric(8, 6), nullable=False)
+    pneumatyk_evidence = db.Column(db.Numeric(8, 6), nullable=False)
+    evidence_strength = db.Column(db.Numeric(8, 6), nullable=False)
+    resulting_dominant_profile = db.Column(db.String(16), nullable=False)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+
+    user = db.relationship("User", back_populates="profile_observations")
 
 
 class Category(db.Model):

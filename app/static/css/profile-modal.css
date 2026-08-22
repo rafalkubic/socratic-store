@@ -1,0 +1,400 @@
+/* Socratic Store - Conversation Profile modal
+   V4: typography and checkbox proportions aligned more closely with Socratic AI. */
+
+.profile-trigger {
+    cursor: pointer !important;
+}
+
+.profile-trigger:focus-visible {
+    outline: 1px solid var(--gold-light);
+    outline-offset: 4px;
+}
+
+.conversation-profile-modal[hidden] {
+    display: none !important;
+}
+
+.conversation-profile-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: grid;
+    place-items: center;
+    padding: clamp(10px, 2vw, 24px);
+}
+
+.conversation-profile-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, .78);
+    backdrop-filter: blur(8px);
+}
+
+.conversation-profile-panel {
+    position: relative;
+    z-index: 1;
+    width: min(1540px, 97vw);
+    max-height: min(92vh, 940px);
+    padding: clamp(34px, 3.7vw, 54px) clamp(34px, 4vw, 58px);
+    padding-right: clamp(105px, 9vw, 145px);
+    background: #0a0a0d;
+    border: 1px solid rgba(240, 189, 66, .34);
+    border-radius: 7px;
+    box-shadow: 0 28px 90px rgba(0,0,0,.64);
+    overflow: auto;
+}
+
+.conversation-profile-panel::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(135deg, rgba(255,255,255,.012), transparent 42%);
+}
+
+.conversation-profile-content {
+    position: relative;
+    z-index: 1;
+    max-width: 1280px;
+}
+
+.conversation-profile-kicker {
+    margin: 0 0 14px;
+    color: #f08ed0;
+    font-size: clamp(.57rem, .58vw, .66rem);
+    font-weight: 800;
+    line-height: 1.2;
+    letter-spacing: .30em;
+    text-transform: uppercase;
+}
+
+.conversation-profile-name {
+    margin: 0 0 13px;
+    color: var(--gold-light);
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(1.85rem, 2.05vw, 2.45rem);
+    font-weight: 500;
+    line-height: 1.02;
+    letter-spacing: .02em;
+    text-shadow: none;
+}
+
+.conversation-profile-description {
+    max-width: 1240px;
+    margin: 0;
+    color: #d4cdbc;
+    font-size: clamp(.72rem, .72vw, .82rem);
+    line-height: 1.55;
+}
+
+.conversation-profile-close {
+    position: absolute;
+    top: clamp(17px, 2vw, 28px);
+    right: clamp(17px, 2vw, 28px);
+    width: 52px;
+    height: 52px;
+    border: 1px solid rgba(240, 189, 66, .34);
+    border-radius: 9px;
+    background: #0b0b0e;
+    cursor: pointer;
+    z-index: 3;
+    transition: border-color .18s ease, background .18s ease, transform .18s ease;
+}
+
+.conversation-profile-close::before,
+.conversation-profile-close::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 22px;
+    height: 1.5px;
+    background: var(--gold-light);
+    transform-origin: center;
+}
+
+.conversation-profile-close::before {
+    transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.conversation-profile-close::after {
+    transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+.conversation-profile-close:hover,
+.conversation-profile-close:focus-visible {
+    border-color: var(--gold-light);
+    background: rgba(240, 189, 66, .045);
+    transform: translateY(-1px);
+    outline: none;
+}
+
+body.profile-modal-open {
+    overflow: hidden;
+}
+
+/* Context profile area */
+.conversation-profile-details {
+    margin-top: clamp(20px, 2.3vw, 32px);
+    padding-top: clamp(18px, 2vw, 27px);
+    border-top: 1px solid rgba(240, 189, 66, .25);
+}
+
+.profile-dominant-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(240, 189, 66, .22);
+    font-size: clamp(.72rem, .72vw, .82rem);
+}
+
+.profile-dominant-label {
+    color: #cfc8ba;
+}
+
+.profile-dominant-value {
+    color: var(--gold-light);
+    font-weight: 800;
+}
+
+.profile-weight-list {
+    display: grid;
+    gap: 16px;
+    padding: 18px 0 17px;
+}
+
+.profile-weight-item {
+    display: grid;
+    gap: 6px;
+}
+
+.profile-weight-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 18px;
+    font-size: clamp(.70rem, .70vw, .80rem);
+}
+
+.profile-weight-label {
+    color: #cfc8ba;
+}
+
+.profile-weight-value {
+    color: var(--gold-light);
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+}
+
+.profile-weight-track {
+    width: 100%;
+    height: 6px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: rgba(255,255,255,.09);
+}
+
+.profile-weight-fill {
+    display: block;
+    width: 0%;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #a66d12, #ffd86d);
+    transition: width .3s ease;
+}
+
+.profile-observations {
+    margin: 1px 0 0;
+    padding: 0 0 18px;
+    color: #cfc8ba;
+    font-size: clamp(.70rem, .70vw, .80rem);
+    border-bottom: 1px solid rgba(240, 189, 66, .22);
+}
+
+.profile-controls {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 16px 22px;
+    align-items: center;
+    padding-top: 18px;
+}
+
+.profile-adapt-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 11px;
+    min-width: 0;
+    color: #eee7da;
+    font-size: clamp(.70rem, .70vw, .80rem);
+    cursor: pointer;
+}
+
+/* Important: generic store input styles define a large min-height.
+   Explicitly reset them here so the checkbox remains a true square. */
+.profile-adapt-checkbox {
+    appearance: none;
+    -webkit-appearance: none;
+    flex: 0 0 22px;
+    width: 22px !important;
+    height: 22px !important;
+    min-width: 22px !important;
+    min-height: 22px !important;
+    max-width: 22px;
+    max-height: 22px;
+    aspect-ratio: 1 / 1;
+    margin: 0;
+    padding: 0 !important;
+    border: 1px solid var(--gold-dark);
+    border-radius: 3px;
+    background: #0a0a0d;
+    position: relative;
+    cursor: pointer;
+    box-shadow: none;
+}
+
+.profile-adapt-checkbox:checked {
+    background: #e8b83c;
+    border-color: #e8b83c;
+}
+
+.profile-adapt-checkbox:checked::after {
+    content: "";
+    position: absolute;
+    left: 6px;
+    top: 3px;
+    width: 6px;
+    height: 11px;
+    border: solid #2b2108;
+    border-width: 0 2.5px 2.5px 0;
+    transform: rotate(45deg);
+}
+
+.profile-adapt-checkbox:focus {
+    border-color: var(--gold-light);
+    box-shadow: 0 0 0 2px rgba(240,189,66,.10);
+}
+
+.profile-button {
+    min-height: 38px;
+    padding: 8px 20px;
+    border: 1px solid #a56e10;
+    border-radius: 3px;
+    background: rgba(240, 189, 66, .02);
+    color: var(--gold-light);
+    font: inherit;
+    font-size: clamp(.70rem, .70vw, .80rem);
+    cursor: pointer;
+    transition: border-color .18s ease, background .18s ease, transform .18s ease;
+}
+
+.profile-button:hover,
+.profile-button:focus-visible {
+    border-color: var(--gold-light);
+    background: rgba(240, 189, 66, .07);
+    outline: none;
+    transform: translateY(-1px);
+}
+
+.profile-save {
+    grid-column: 2;
+    grid-row: 1;
+}
+
+.profile-reset {
+    grid-column: 1;
+    grid-row: 2;
+    justify-self: start;
+}
+
+.profile-status {
+    grid-column: 2;
+    grid-row: 2;
+    justify-self: end;
+    min-height: 1.2em;
+    color: #c8beaa;
+    font-size: .67rem;
+}
+
+@media (max-width: 760px) {
+    .conversation-profile-modal {
+        align-items: start;
+        padding: 10px;
+        padding-top: 16px;
+    }
+
+    .conversation-profile-panel {
+        width: 100%;
+        max-height: calc(100vh - 26px);
+        padding: 34px 20px 26px;
+        padding-right: 68px;
+    }
+
+    .conversation-profile-close {
+        top: 13px;
+        right: 13px;
+        width: 46px;
+        height: 46px;
+        border-radius: 8px;
+    }
+
+    .conversation-profile-close::before,
+    .conversation-profile-close::after {
+        width: 19px;
+    }
+
+    .conversation-profile-kicker {
+        margin-bottom: 12px;
+        font-size: .57rem;
+        letter-spacing: .24em;
+    }
+
+    .conversation-profile-name {
+        margin-bottom: 12px;
+        font-size: 2rem;
+    }
+
+    .conversation-profile-description {
+        font-size: .72rem;
+    }
+
+    .conversation-profile-details {
+        margin-top: 21px;
+        padding-top: 18px;
+    }
+
+    .profile-dominant-row,
+    .profile-weight-head,
+    .profile-observations,
+    .profile-adapt-label,
+    .profile-button {
+        font-size: .72rem;
+    }
+
+    .profile-weight-list {
+        gap: 15px;
+        padding-top: 17px;
+    }
+
+    .profile-controls {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .profile-save,
+    .profile-reset,
+    .profile-status {
+        grid-column: 1;
+        grid-row: auto;
+        justify-self: stretch;
+    }
+
+    .profile-status {
+        text-align: left;
+    }
+
+    .profile-button {
+        width: 100%;
+    }
+}

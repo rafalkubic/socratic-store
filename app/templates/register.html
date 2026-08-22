@@ -8,6 +8,7 @@
         <h1>{{ t('register') }}</h1>
         <form method="post" class="stack-form">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            {% if next_path %}<input type="hidden" name="next" value="{{ next_path }}">{% endif %}
             <label>{{ t('email') }}<input type="email" name="email" required autocomplete="email"></label>
             <label>{{ t('username') }}<input type="text" name="username" minlength="3" maxlength="80" required autocomplete="username"></label>
             <label>{{ t('password') }}<input type="password" name="password" minlength="8" required autocomplete="new-password"></label>

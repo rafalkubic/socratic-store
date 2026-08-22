@@ -1,95 +1,255 @@
-param(
-    [switch]$OpenBrowser
-)
-
 $ErrorActionPreference = "Stop"
-$ProjectRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
-$PythonExe = Join-Path $ProjectRoot ".venv\Scripts\python.exe"
 
-function Test-DockerEngine {
-    & docker info *> $null
-    return ($LASTEXITCODE -eq 0)
+$ProjectPath = "C:\Users\rkubic\socratic_store\socratic_store"
+$PythonExe = Join-Path $ProjectPath ".venv\Scripts\python.exe"
+$DockerDesktopExe = "C:\Program Files\Docker\Docker\Docker Desktop.exe"
+$MySqlContainer = "socratic-store-mysql"
+
+Write-Host ""
+Write-Host "====================================" -ForegroundColor Yellow
+Write-Host " SOCRATIC STORE - START" -ForegroundColor Yellow
+Write-Host "====================================" -ForegroundColor Yellow
+Write-Host ""
+
+# --------------------------------------------------
+# 0. Sprawdzenie projektu i Pythona
+# --------------------------------------------------
+
+if (-not (Test-Path $ProjectPath)) {
+    throw "Nie znaleziono katalogu projektu: $ProjectPath"
 }
 
 if (-not (Test-Path $PythonExe)) {
-    throw "Python virtualenv not found: $PythonExe"
+    throw "Nie znaleziono virtualenv Python: $PythonExe"
 }
 
-Write-Host "[1/5] Docker Desktop..." -ForegroundColor Cyan
-if (-not (Test-DockerEngine)) {
-    Write-Host "Starting Docker Desktop..." -ForegroundColor Yellow
-    & docker desktop start | Out-Host
+Set-Location $ProjectPath
 
-    $DockerReady = $false
-    for ($i = 0; $i -lt 60; $i++) {
+# --------------------------------------------------
+# 1. Docker
+# --------------------------------------------------
+
+Write-Host "[1/5] Sprawdzam Docker..." -ForegroundColor Cyan
+
+$DockerReady = $false
+
+cmd.exe /d /c "docker info >nul 2>&1"
+
+if ($LASTEXITCODE -eq 0) {
+    $DockerReady = $true
+}
+
+if (-not $DockerReady) {
+
+    Write-Host "Docker Engine nie dziala. Uruchamiam Docker Desktop..." -ForegroundColor Yellow
+
+    if (-not (Test-Path $DockerDesktopExe)) {
+        throw "Nie znaleziono Docker Desktop: $DockerDesktopExe"
+    }
+
+    Start-Process $DockerDesktopExe | Out-Null
+
+    Write-Host "Czekam na uruchomienie Docker Engine..." -ForegroundColor Yellow
+
+    for ($i = 1; $i -le 60; $i++) {
+
         Start-Sleep -Seconds 2
-        if (Test-DockerEngine) {
+
+        cmd.exe /d /c "docker info >nul 2>&1"
+
+        if ($LASTEXITCODE -eq 0) {
             $DockerReady = $true
             break
         }
-    }
 
-    if (-not $DockerReady) {
-        throw "Docker Engine did not become ready in time."
+        Write-Host "  Docker jeszcze startuje... ($i/60)"
     }
 }
-Write-Host "Docker: OK" -ForegroundColor Green
 
-Push-Location $ProjectRoot
-try {
-    Write-Host "[2/5] MySQL..." -ForegroundColor Cyan
-    & docker compose up -d mysql | Out-Host
-    if ($LASTEXITCODE -ne 0) {
-        throw "docker compose up failed."
+if (-not $DockerReady) {
+    throw "Docker Engine nie uruchomil sie w wymaganym czasie."
+}
+
+Write-Host "Docker OK." -ForegroundColor Green
+
+# --------------------------------------------------
+# 2. MySQL
+# --------------------------------------------------
+
+Write-Host ""
+Write-Host "[2/5] Uruchamiam MySQL..." -ForegroundColor Cyan
+
+docker compose up -d mysql
+
+if ($LASTEXITCODE -ne 0) {
+    throw "Nie udalo sie uruchomic kontenera MySQL."
+}
+
+# --------------------------------------------------
+# 3. Oczekiwanie na healthcheck MySQL
+# --------------------------------------------------
+
+Write-Host ""
+Write-Host "[3/5] Czekam na MySQL..." -ForegroundColor Cyan
+
+$MySQLReady = $false
+
+for ($i = 1; $i -le 60; $i++) {
+
+    $Health = ""
+
+    try {
+        $Health = (
+            docker inspect `
+                --format "{{.State.Health.Status}}" `
+                $MySqlContainer `
+                2>$null
+        ).Trim()
+    }
+    catch {
+        $Health = ""
     }
 
-    Write-Host "[3/5] Waiting for MySQL..." -ForegroundColor Cyan
-    $DbReady = $false
-    for ($i = 0; $i -lt 60; $i++) {
-        $Health = (& docker inspect --format "{{.State.Health.Status}}" socratic-store-mysql 2>$null)
-        if ($LASTEXITCODE -eq 0 -and $Health -and $Health.Trim() -eq "healthy") {
-            $DbReady = $true
-            break
-        }
-        Start-Sleep -Seconds 2
-    }
-    if (-not $DbReady) {
-        throw "MySQL did not reach healthy status."
-    }
-    Write-Host "MySQL: OK" -ForegroundColor Green
-
-    Write-Host "[4/5] Database seed..." -ForegroundColor Cyan
-    & $PythonExe (Join-Path $ProjectRoot "seed.py")
-    if ($LASTEXITCODE -ne 0) {
-        throw "seed.py failed."
+    if ($Health -eq "healthy") {
+        $MySQLReady = $true
+        break
     }
 
-    Write-Host "[5/5] Flask..." -ForegroundColor Cyan
-    $ExistingFlask = Get-CimInstance Win32_Process |
-        Where-Object { $_.Name -match "python" -and $_.CommandLine -match "run\.py" } |
-        Select-Object -First 1
-
-    if (-not $ExistingFlask) {
-        $RunPy = Join-Path $ProjectRoot "run.py"
-        $Command = "& '$PythonExe' '$RunPy'"
-        Start-Process powershell.exe -WorkingDirectory $ProjectRoot -ArgumentList @(
-            "-NoExit",
-            "-ExecutionPolicy", "Bypass",
-            "-Command", $Command
-        ) | Out-Null
+    if ($Health) {
+        Write-Host "  MySQL status: $Health ($i/60)"
     }
     else {
-        Write-Host "Flask already running: PID $($ExistingFlask.ProcessId)"
+        Write-Host "  Czekam na kontener MySQL... ($i/60)"
     }
 
-    if ($OpenBrowser) {
-        Start-Sleep -Seconds 3
-        Start-Process "http://localhost:5000"
-    }
+    Start-Sleep -Seconds 2
+}
+
+if (-not $MySQLReady) {
 
     Write-Host ""
-    Write-Host "Socratic Store: http://localhost:5000" -ForegroundColor Green
+    Write-Host "Aktualny status kontenera:" -ForegroundColor Yellow
+
+    docker compose ps
+
+    throw "MySQL nie osiagnal statusu healthy."
 }
-finally {
-    Pop-Location
+
+Write-Host "MySQL OK." -ForegroundColor Green
+
+# --------------------------------------------------
+# 4. Baza danych / seed
+# --------------------------------------------------
+
+Write-Host ""
+Write-Host "[4/5] Sprawdzam strukture i dane bazy..." -ForegroundColor Cyan
+
+& $PythonExe "$ProjectPath\seed.py"
+
+if ($LASTEXITCODE -ne 0) {
+    throw "Seed bazy danych zakonczyl sie bledem."
 }
+
+Write-Host "Baza danych OK." -ForegroundColor Green
+
+# --------------------------------------------------
+# 5. Flask
+# --------------------------------------------------
+
+Write-Host ""
+Write-Host "[5/5] Uruchamiam Socratic Store..." -ForegroundColor Cyan
+
+# Zatrzymujemy ewentualna stara instancje Flask
+$OldFlaskProcesses = Get-CimInstance Win32_Process |
+    Where-Object {
+        $_.Name -match "^python" -and
+        $_.CommandLine -match "run\.py"
+    }
+
+foreach ($Process in $OldFlaskProcesses) {
+
+    Write-Host "  Zatrzymuje poprzedni Flask PID $($Process.ProcessId)" -ForegroundColor DarkYellow
+
+    Stop-Process `
+        -Id $Process.ProcessId `
+        -Force `
+        -ErrorAction SilentlyContinue
+}
+
+Start-Sleep -Seconds 1
+
+# Uruchom Flask w osobnym oknie PowerShell
+$FlaskCommand = "& `"$PythonExe`" `"$ProjectPath\run.py`""
+
+Start-Process `
+    powershell.exe `
+    -WorkingDirectory $ProjectPath `
+    -ArgumentList @(
+        "-NoExit",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-Command",
+        $FlaskCommand
+    ) | Out-Null
+
+Write-Host "Czekam na Flask..." -ForegroundColor Yellow
+
+$FlaskReady = $false
+
+for ($i = 1; $i -le 20; $i++) {
+
+    Start-Sleep -Seconds 1
+
+    try {
+        $Response = Invoke-WebRequest `
+            -Uri "http://127.0.0.1:5000" `
+            -UseBasicParsing `
+            -TimeoutSec 2 `
+            -ErrorAction Stop
+
+        if ($Response.StatusCode -ge 200 -and $Response.StatusCode -lt 500) {
+            $FlaskReady = $true
+            break
+        }
+    }
+    catch {
+        Write-Host "  Flask jeszcze startuje... ($i/20)"
+    }
+}
+
+if (-not $FlaskReady) {
+    Write-Host ""
+    Write-Host "Flask nie odpowiedzial jeszcze na porcie 5000." -ForegroundColor Yellow
+    Write-Host "Sprawdz nowe okno PowerShell z logami Flask." -ForegroundColor Yellow
+}
+else {
+    Write-Host "Flask OK." -ForegroundColor Green
+}
+
+# --------------------------------------------------
+# Otworzenie sklepu
+# --------------------------------------------------
+
+if ($FlaskReady) {
+    Start-Process "http://localhost:5000"
+}
+
+Write-Host ""
+Write-Host "====================================" -ForegroundColor Green
+Write-Host " SOCRATIC STORE URUCHOMIONY" -ForegroundColor Green
+Write-Host "====================================" -ForegroundColor Green
+Write-Host ""
+Write-Host "Sklep:  http://localhost:5000" -ForegroundColor Yellow
+Write-Host ""
+Write-Host "Docker: OK"
+Write-Host "MySQL:  OK"
+
+if ($FlaskReady) {
+    Write-Host "Flask:  OK"
+}
+else {
+    Write-Host "Flask:  sprawdz logi" -ForegroundColor Yellow
+}
+
+Write-Host ""

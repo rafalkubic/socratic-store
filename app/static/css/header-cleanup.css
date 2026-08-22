@@ -1,0 +1,45 @@
+/* Socratic Store header cleanup V5 */
+
+/* The return link is intentionally removed from the Store header. */
+.site-header .ghost-link {
+    display: none !important;
+}
+
+/* Cart gets a small gold bag icon inspired by the supplied reference. */
+.header-actions .cart-link-with-icon {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.header-actions .cart-link-with-icon::before {
+    content: "";
+    display: inline-block;
+    width: 25px;
+    height: 25px;
+    flex: 0 0 25px;
+    background: url('../images/decor/cart-bag-gold.svg') center / contain no-repeat;
+    opacity: .96;
+    transform: translateY(1px);
+}
+
+.header-actions .cart-link-with-icon:hover::before {
+    opacity: 1;
+}
+
+/* If an older context badge uses one of these common classes, suppress it. */
+.site-header .profile-context-badge,
+.site-header .conversation-context-badge,
+.site-header .user-context-badge,
+.site-header .user-profile-type,
+.site-header .profile-type-badge {
+    display: none !important;
+}
+
+@media (max-width: 760px) {
+    .header-actions .cart-link-with-icon::before {
+        width: 22px;
+        height: 22px;
+        flex-basis: 22px;
+    }
+}

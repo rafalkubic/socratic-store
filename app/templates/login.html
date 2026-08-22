@@ -7,17 +7,18 @@
         <p class="eyebrow">ACCESS</p>
         <h1>{{ t('login') }}</h1>
         <div class="oauth-buttons">
-            <a class="button oauth" href="{{ url_for('auth.oauth_login', provider='google') }}">G · {{ t('login_google') }}</a>
-            <a class="button oauth" href="{{ url_for('auth.oauth_login', provider='facebook') }}">f · {{ t('login_facebook') }}</a>
+            <a class="button oauth" href="{{ url_for('auth.oauth_login', provider='google', return_to='ai') if next_path and '/auth/bridge/ai' in next_path else url_for('auth.oauth_login', provider='google') }}">G · {{ t('login_google') }}</a>
+            <a class="button oauth" href="{{ url_for('auth.oauth_login', provider='facebook', return_to='ai') if next_path and '/auth/bridge/ai' in next_path else url_for('auth.oauth_login', provider='facebook') }}">f · {{ t('login_facebook') }}</a>
         </div>
         <div class="divider"><span>{{ t('or') }}</span></div>
         <form method="post" class="stack-form">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            {% if next_path %}<input type="hidden" name="next" value="{{ next_path }}">{% endif %}
             <label>{{ t('email') }} / {{ t('username') }}<input type="text" name="identifier" required autocomplete="username"></label>
             <label>{{ t('password') }}<input type="password" name="password" required autocomplete="current-password"></label>
             <button class="button primary full" type="submit">{{ t('login_local') }}</button>
         </form>
-        <p class="small-copy"><a href="{{ url_for('auth.register') }}">{{ t('register') }}</a></p>
+        <p class="small-copy"><a href="{{ url_for('auth.register', next=next_path) if next_path else url_for('auth.register') }}">{{ t('register') }}</a></p>
     </div>
 </section>
 {% endblock %}

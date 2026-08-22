@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}{{ t('dialogue_profile') }} · {{ shop_name }}{% endblock %}
+{% block content %}
+<section class="section-block narrow top-space">
+    <div class="profile-store-card">
+        <p class="eyebrow">{{ t('dialogue_profile_eyebrow') }}</p>
+        <h1>{{ t('dialogue_profile') }}</h1>
+        <p class="profile-store-note">{{ t('profile_privacy_note') }}</p>
+
+        <div class="profile-store-dominant">
+            <span>{{ t('profile_dominant') }}</span>
+            <strong>
+                {% if profile_dominant == 'neutral' %}{{ t('profile_calibrating') }}{% else %}{{ profile_dominant|capitalize }}{% endif %}
+            </strong>
+        </div>
+
+        {% for key, label_key in [('hylik','profile_hylik'), ('psychik','profile_psychik'), ('pneumatyk','profile_pneumatyk')] %}
+        <div class="profile-store-meter">
+            <div><span>{{ t(label_key) }}</span><strong>{{ '%.1f'|format(profile_percentages[key]) }}%</strong></div>
+            <span class="profile-store-track"><i style="width: {{ profile_percentages[key] }}%"></i></span>
+        </div>
+        {% endfor %}
+
+        <p class="profile-store-samples">{{ t('profile_samples') }}: {{ dialogue_profile.sample_count }}</p>
+
+        <form method="post" class="profile-store-settings">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="action" value="settings">
+            <label>
+                <input type="checkbox" name="profiling_enabled" {% if dialogue_profile.profiling_enabled %}checked{% endif %}>
+                <span>{{ t('profile_enabled') }}</span>
+            </label>
+            <button class="button" type="submit">{{ t('save') }}</button>
+        </form>
+
+        <form method="post" class="profile-store-reset">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="action" value="reset">
+            <button class="button" type="submit">{{ t('profile_reset') }}</button>
+        </form>
+    </div>
+</section>
+{% endblock %}

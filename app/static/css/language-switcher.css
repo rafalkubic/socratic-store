@@ -1,0 +1,277 @@
+/* Socratic Store - Account + Language Panel V8
+   Layout aligned to the supplied Socratic AI reference:
+   [Cart] [profile icon | EN / PL radios]
+*/
+
+.site-header {
+    min-height: 112px;
+}
+
+.header-actions {
+    gap: 18px;
+}
+
+/* Username and logout are no longer header items. */
+.site-header .user-chip {
+    display: none !important;
+}
+
+.site-header form.inline-form {
+    display: none !important;
+}
+
+/* Account / language block */
+.profile-language-cluster {
+    display: grid;
+    grid-template-columns: 92px 1px 84px;
+    align-items: center;
+    min-height: 100px;
+    margin-left: 6px;
+    padding: 8px 14px 8px 8px;
+    background: #08080a;
+    border: 1px solid rgba(240, 189, 66, .22);
+    border-radius: 32px;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.008);
+}
+
+.profile-language-divider {
+    align-self: stretch;
+    width: 1px;
+    margin: 5px 0;
+    background: rgba(240, 189, 66, .28);
+}
+
+.profile-header-button {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 82px;
+    height: 82px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    cursor: pointer;
+    overflow: visible;
+}
+
+.profile-header-button:hover,
+.profile-header-button:focus-visible {
+    outline: none;
+}
+
+.profile-header-icon {
+    width: 76px;
+    height: 76px;
+    object-fit: cover;
+    border-radius: 50%;
+    background: #050505;
+    /* Recolor the supplied grey/white engraving toward the Store gold. */
+    filter:
+        sepia(1)
+        saturate(1.45)
+        hue-rotate(347deg)
+        brightness(1.08)
+        contrast(1.04);
+    opacity: .98;
+    transition: transform .18s ease, filter .18s ease;
+}
+
+.profile-header-button:hover .profile-header-icon,
+.profile-header-button:focus-visible .profile-header-icon {
+    transform: scale(1.025);
+    filter:
+        sepia(1)
+        saturate(1.6)
+        hue-rotate(347deg)
+        brightness(1.18)
+        contrast(1.04);
+}
+
+.profile-header-status {
+    position: absolute;
+    right: 3px;
+    bottom: 7px;
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: #e1b83f;
+    border: 2px solid #15110a;
+    box-shadow: 0 0 9px rgba(225,184,63,.45);
+}
+
+/* Existing language-switcher becomes the permanent radio panel. */
+.language-switcher.account-language-panel {
+    display: grid !important;
+    grid-template-rows: repeat(2, 31px);
+    align-content: center;
+    justify-content: start;
+    gap: 2px;
+    min-width: 0;
+    margin: 0;
+    padding: 0 0 0 15px;
+    color: #eee9df;
+}
+
+/* No dropdown trigger / no dropdown menu. */
+.language-switcher.account-language-panel .language-menu-trigger,
+.language-switcher.account-language-panel .language-menu {
+    display: none !important;
+}
+
+.language-switcher.account-language-panel > .language-account-option {
+    display: flex !important;
+}
+
+.language-account-option {
+    align-items: center;
+    gap: 10px;
+    min-height: 31px;
+    color: #eee9df !important;
+    text-decoration: none !important;
+    font-size: .91rem;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.language-account-radio {
+    position: relative;
+    width: 21px;
+    height: 21px;
+    flex: 0 0 21px;
+    border: 1px solid #68727b;
+    border-radius: 50%;
+    background: #07090b;
+    box-sizing: border-box;
+}
+
+.language-account-option:hover .language-account-radio {
+    border-color: #9aa3a9;
+}
+
+.language-account-option.is-active .language-account-radio {
+    border-color: #2faaff;
+    box-shadow:
+        0 0 0 3px rgba(47,170,255,.12),
+        0 0 10px rgba(47,170,255,.38);
+}
+
+.language-account-option.is-active .language-account-radio::after {
+    content: "";
+    position: absolute;
+    inset: 5px;
+    border-radius: 50%;
+    background: #37b1ff;
+    box-shadow: 0 0 7px rgba(55,177,255,.64);
+}
+
+.language-account-label {
+    padding-top: 1px;
+}
+
+/* Cart remains immediately before the account panel. */
+.header-actions .cart-link-with-icon {
+    margin-right: 1px;
+}
+
+/* Logout is moved to the conversation/profile modal. */
+.conversation-profile-content .profile-logout-form {
+    display: block !important;
+    margin: 20px 0 0;
+    padding-top: 18px;
+    border-top: 1px solid rgba(240, 189, 66, .20);
+}
+
+.profile-logout-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 38px;
+    padding: 8px 20px;
+    border: 1px solid #a56e10 !important;
+    border-radius: 3px;
+    background: rgba(240, 189, 66, .02) !important;
+    color: var(--gold-light) !important;
+    font: inherit;
+    font-size: .76rem;
+    cursor: pointer;
+}
+
+.profile-logout-button:hover,
+.profile-logout-button:focus-visible {
+    border-color: var(--gold-light) !important;
+    background: rgba(240, 189, 66, .07) !important;
+    outline: none;
+}
+
+@media (max-width: 1100px) {
+    .site-header {
+        min-height: 100px;
+    }
+
+    .profile-language-cluster {
+        grid-template-columns: 78px 1px 76px;
+        min-height: 88px;
+        border-radius: 27px;
+    }
+
+    .profile-header-button {
+        width: 70px;
+        height: 70px;
+    }
+
+    .profile-header-icon {
+        width: 65px;
+        height: 65px;
+    }
+}
+
+@media (max-width: 760px) {
+    .site-header {
+        min-height: auto;
+    }
+
+    .profile-language-cluster {
+        grid-template-columns: 70px 1px 72px;
+        min-height: 80px;
+        margin-left: 0;
+        padding: 6px 10px 6px 6px;
+        border-radius: 24px;
+    }
+
+    .profile-header-button {
+        width: 64px;
+        height: 64px;
+    }
+
+    .profile-header-icon {
+        width: 59px;
+        height: 59px;
+    }
+
+    .profile-header-status {
+        width: 10px;
+        height: 10px;
+        right: 1px;
+        bottom: 5px;
+    }
+
+    .language-switcher.account-language-panel {
+        padding-left: 11px;
+    }
+
+    .language-account-option {
+        font-size: .84rem;
+        gap: 8px;
+    }
+
+    .language-account-radio {
+        width: 19px;
+        height: 19px;
+        flex-basis: 19px;
+    }
+
+    .language-account-option.is-active .language-account-radio::after {
+        inset: 4px;
+    }
+}

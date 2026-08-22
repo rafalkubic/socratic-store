@@ -1,0 +1,175 @@
+/* Socratic Store - Conversation Profile modal, Socratic AI inspired */
+.profile-trigger {
+    cursor: pointer !important;
+}
+
+.profile-trigger:focus-visible {
+    outline: 1px solid var(--gold-light);
+    outline-offset: 5px;
+}
+
+.conversation-profile-modal[hidden] {
+    display: none !important;
+}
+
+.conversation-profile-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: grid;
+    place-items: center;
+    padding: clamp(10px, 2vw, 28px);
+}
+
+.conversation-profile-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, .78);
+    backdrop-filter: blur(8px);
+}
+
+.conversation-profile-panel {
+    position: relative;
+    z-index: 1;
+    width: min(1580px, 98vw);
+    min-height: clamp(300px, 37vh, 430px);
+    padding: clamp(46px, 5vw, 70px) clamp(44px, 5vw, 66px);
+    padding-right: clamp(130px, 11vw, 175px);
+    background: #0a0a0d;
+    border: 1px solid rgba(240, 189, 66, .36);
+    border-radius: 7px;
+    box-shadow: 0 28px 90px rgba(0,0,0,.64);
+    overflow: hidden;
+}
+
+.conversation-profile-panel::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(135deg, rgba(255,255,255,.012), transparent 42%);
+}
+
+.conversation-profile-content {
+    position: relative;
+    z-index: 1;
+    max-width: 1280px;
+}
+
+.conversation-profile-kicker {
+    margin: 0 0 24px;
+    color: #f08ed0;
+    font-size: clamp(.72rem, .9vw, .9rem);
+    font-weight: 800;
+    line-height: 1.2;
+    letter-spacing: .30em;
+    text-transform: uppercase;
+}
+
+.conversation-profile-name {
+    margin: 0 0 25px;
+    color: var(--gold-light);
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(2.7rem, 4.2vw, 4.4rem);
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: .02em;
+    text-shadow: none;
+}
+
+.conversation-profile-description {
+    max-width: 1240px;
+    margin: 0;
+    color: #d4cdbc;
+    font-size: clamp(1rem, 1.25vw, 1.25rem);
+    line-height: 1.62;
+}
+
+.conversation-profile-close {
+    position: absolute;
+    top: clamp(28px, 3vw, 42px);
+    right: clamp(28px, 3vw, 42px);
+    width: 70px;
+    height: 70px;
+    border: 1px solid rgba(240, 189, 66, .34);
+    border-radius: 12px;
+    background: #0b0b0e;
+    cursor: pointer;
+    z-index: 3;
+    transition: border-color .18s ease, background .18s ease, transform .18s ease;
+}
+
+.conversation-profile-close::before,
+.conversation-profile-close::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 29px;
+    height: 2px;
+    background: var(--gold-light);
+    transform-origin: center;
+}
+
+.conversation-profile-close::before {
+    transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.conversation-profile-close::after {
+    transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+.conversation-profile-close:hover,
+.conversation-profile-close:focus-visible {
+    border-color: var(--gold-light);
+    background: rgba(240, 189, 66, .045);
+    transform: translateY(-1px);
+    outline: none;
+}
+
+body.profile-modal-open {
+    overflow: hidden;
+}
+
+@media (max-width: 760px) {
+    .conversation-profile-modal {
+        align-items: start;
+        padding: 10px;
+        padding-top: 16px;
+    }
+
+    .conversation-profile-panel {
+        width: 100%;
+        min-height: 350px;
+        padding: 42px 22px 30px;
+        padding-right: 78px;
+    }
+
+    .conversation-profile-close {
+        top: 15px;
+        right: 15px;
+        width: 54px;
+        height: 54px;
+        border-radius: 9px;
+    }
+
+    .conversation-profile-close::before,
+    .conversation-profile-close::after {
+        width: 23px;
+    }
+
+    .conversation-profile-kicker {
+        margin-bottom: 19px;
+        font-size: .68rem;
+        letter-spacing: .23em;
+    }
+
+    .conversation-profile-name {
+        margin-bottom: 22px;
+        font-size: clamp(2.35rem, 12vw, 3.5rem);
+    }
+
+    .conversation-profile-description {
+        font-size: .97rem;
+    }
+}

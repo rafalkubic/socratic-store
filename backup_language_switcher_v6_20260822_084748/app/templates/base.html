@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="{{ lang }}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>{% block title %}{{ shop_name }}{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/profile-modal.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/header-cleanup.css') }}">
+</head>
+<body>
+<div class="page-shell">
+    <header class="site-header">
+        <a class="brand" href="{{ url_for('shop.home') }}">
+            <img src="{{ url_for('static', filename='images/decor/store-symbol-wings.png') }}" alt="" class="brand-mark">
+            <span class="brand-wordmark">{{ shop_name }}</span>
+        </a>
+        <nav class="main-nav" aria-label="Main navigation">
+            {% for cat in nav_categories %}
+                <a href="{{ url_for('shop.category', slug=cat.slug) }}">{{ cat.name_for(lang) }}</a>
+            {% endfor %}
+        </nav>
+        <div class="header-actions">
+            <a class="ghost-link" href="{{ socratic_ai_url }}">{{ t('back_to_ai') }}</a>
+            <a href="{{ url_for('shop.cart') }}">{{ t('cart') }}</a>
+            {% if current_user %}
+                <a class="user-chip" href="{{ url_for('auth.profile') }}">
+                    {{ current_user.display_name or current_user.username }}
+                    {% if current_profile and current_profile.sample_count %}
+                        <small>· {{ current_profile.dominant_profile }}</small>
+                    {% endif %}
+                </a>
+                <form action="{{ url_for('auth.logout') }}" method="post" class="inline-form">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button class="link-button" type="submit">{{ t('logout') }}</button>
+                </form>
+            {% else %}
+                <a href="{{ url_for('auth.login') }}">{{ t('login') }}</a>
+            {% endif %}
+            <div class="language-switcher" aria-label="{{ t('language') }}">
+                <a class="{% if lang == 'pl' %}active{% endif %}" href="{{ url_for('shop.set_language', lang='pl') }}">PL</a>
+                <span>/</span>
+                <a class="{% if lang == 'en' %}active{% endif %}" href="{{ url_for('shop.set_language', lang='en') }}">EN</a>
+            </div>
+        </div>
+    </header>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="flash-stack">
+            {% for category, message in messages %}
+            <div class="flash {{ category }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    {% endwith %}
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <img src="{{ url_for('static', filename='images/decor/store-symbol-wings.png') }}" alt="" class="footer-symbol">
+        <span>{{ shop_name }} · Python / Flask / MySQL</span>
+    </footer>
+</div>
+
+    {% if current_user %}
+    <div class="conversation-profile-modal" id="conversationProfileModal" data-profile-user="{{ current_user.display_name or current_user.username }}" hidden aria-hidden="true">
+        <div class="conversation-profile-backdrop" data-profile-close></div>
+        <section class="conversation-profile-panel" role="dialog" aria-modal="true" aria-labelledby="conversationProfileTitle">
+            <button class="conversation-profile-close" type="button" data-profile-close aria-label="{{ 'Zamknij profil rozmowy' if lang == 'pl' else 'Close conversation profile' }}"></button>
+            <div class="conversation-profile-content">
+                <p class="conversation-profile-kicker" id="conversationProfileTitle">{{ 'PROFIL ROZMOWY' if lang == 'pl' else 'CONVERSATION PROFILE' }}</p>
+                <h2 class="conversation-profile-name">{{ current_user.display_name or current_user.username }}</h2>
+                <p class="conversation-profile-description">
+                    {{ 'Profil opisuje preferowany kontekst rozmowy, nie diagnozę ani deklarację wiary. Zapisywane są tylko trzy wagi i licznik obserwacji — bez treści pytań.' if lang == 'pl' else 'The profile describes the preferred conversation context, not a diagnosis or statement of belief. Only three weights and an observation counter are stored — without the content of your questions.' }}
+                </p>
+            </div>
+        </section>
+    </div>
+    <script src="{{ url_for('static', filename='js/profile-modal.js') }}"></script>
+    {% endif %}
+
+    <script src="{{ url_for('static', filename='js/header-cleanup.js') }}"></script>
+</body>
+</html>

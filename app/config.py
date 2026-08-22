@@ -10,6 +10,7 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     APP_BASE_URL = os.getenv("APP_BASE_URL", "http://localhost:5000").rstrip("/")
     SOCRATIC_AI_URL = os.getenv("SOCRATIC_AI_URL", "http://localhost:8000")
+    SOCRATIC_SHARED_AUTH_SECRET = os.getenv("SOCRATIC_SHARED_AUTH_SECRET", "")
     SHOP_NAME = os.getenv("SHOP_NAME", "Socratic Store")
     SHOP_CONTACT_EMAIL = os.getenv("SHOP_CONTACT_EMAIL", "shop@example.local")
 
